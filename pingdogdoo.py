@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# ping-watchdog.py
+# pingdogdoo.py
 #
-# Purpose: reboot the machine if pinging host failed
+# Purpose: run command if pinging host failed
 #
 # Copyright (c) 2021 by bgeneto <b g e n e t o at g m a i l  dot c o m>
 #
@@ -19,15 +19,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Based off of ping-watchdog. I needed to run a command instaed of reboot
+# so I thought I would share my edit as well. I will leave 
+# https://github.com/bgeneto/ping-watchdog
+# 
+#
 
-__author__ = "bgeneto"
-__maintainer__ = "bgeneto"
-__contact__ = "bgeneto at gmail"
-__copyright__ = "Copyright 2021, bgeneto"
+__author__ = "bgeneto / DocCyblade"
+__maintainer__ = "DocCyblade"
+__contact__ = "doccyblade at homepost dot net"
+__copyright__ = "Copyright 2021/2023, bgeneto/DocCyblade"
 __license__ = "GPLv3"
 __status__ = "Production"
-__date__ = "2021/08/12"
-__version__ = "1.0.3"
+__date__ = "2023/04/04"
+__version__ = "1.1.0"
 
 import configparser
 import logging
