@@ -63,7 +63,7 @@ class MyLog:
     Take care of log config/format and log rotation
     '''
 
-    log_msg = '(ping-watchdog) ping failed. requesting reboot'
+    log_msg = '(pingdogdoo) ping failed. Running command.'
 
     def __init__(self, log_max_size=0, fn=None):
         self.log_max_size = log_max_size
@@ -214,7 +214,7 @@ class Pushover:
             logger.debug('pushover not properly configured')
             return
 
-        text = "ping failed. performing reboot for %s" % socket.gethostname()
+        text = "ping failed. performing command for %s" % socket.gethostname()
         content = {"message": text, "user": self.key, "token": self.token}
         sent = True
         try:
@@ -280,9 +280,9 @@ def ping_host(cfg):
     return False
 
 
-def num_reboots_24h(cfg):
+def num_exec_command_24h(cfg):
     '''
-    Return number of reboots in the last 24h
+    Return number of times commands was exec in the last 24h
     '''
     dt_lst = []
     with open(cfg.config['log']['log_file'], 'r') as f:
@@ -306,14 +306,14 @@ def num_reboots_24h(cfg):
     return count
 
 
-def send_reboot_cmd(cfg):
-    '''send reboot command'''
-    # reboot command according to OS
-    cmd = cfg.config['reboot']['reboot_cmd_nix']
+def exec_the_command(cfg):
+    '''send the command'''
+    # command according to OS
+    cmd = cfg.config['commands']['command_nix']
     if os.name == 'nt':
-        cmd = cfg.config['reboot']['reboot_cmd_win']
+        cmd = cfg.config['commands']['command_win']
 
-    # perform reboot
+    # perform command
     result = os.system(cmd)
 
     if result != 0:
@@ -322,23 +322,23 @@ def send_reboot_cmd(cfg):
     return True
 
 
-def notify_and_reboot(cfg):
-    # check reboot threshold
-    reboots = num_reboots_24h(cfg)
-    logger.debug("number of reboot attemps in the last 24h: %s " % reboots)
-    if reboots >= int(cfg.config['reboot']['max_reboots_per_day']):
-        logger.fatal("reboot canceled. max reboots allowed in 24h reached")
-    # send notification and perform reboot
+def notify_and_exec_command(cfg):
+    # check command threshold
+    exec_command_count = num_exec_command_24h(cfg)
+    logger.debug("number of command attemps in the last 24h: %s " % command ran)
+    if exec_command_count >= int(cfg.config['commands']['max_exec_cmd_per_day']):
+        logger.fatal("command canceled. max command attempts allowed in 24h reached")
+    # send notification and perform command
     else:
-        # send system/log and push notification before reboot command
+        # send system/log and push notification before command
         MyLog.notify()
         # send push notification
         push = Pushover(cfg.config['pushover']['pushover_user_key'],
                         cfg.config['pushover']['pushover_api_token'])
         push.notify()
-        # finally reboot
-        if not send_reboot_cmd(cfg):
-            logger.fatal("reboot command failed")
+        # finally run command
+        if not exec_the_command(cfg):
+            logger.fatal("command failed, exit not 0")
 
 
 def main():
@@ -357,10 +357,10 @@ def main():
             "retries": "2",
             "retry_wait": "60"
         },
-        "reboot": {
-            "max_reboots_per_day": "3",
-            "reboot_cmd_nix": "sudo /sbin/shutdown --no-wall --reboot +2",
-            "reboot_cmd_win": "shutdown /r /t 120"
+        "commands": {
+            "max_exec_cmd_per_day": "3",
+            "command_nix": "sudo /sbin/shutdown --no-wall --reboot +2",
+            "command_win": "shutdown /r /t 120"
         },
         "pushover": {
             "pushover_user_key": "",
@@ -375,9 +375,9 @@ def main():
     config = MyConfig(config_items, config_file)
 
     if ping_host(config):
-        logger.fatal("no reboot required")
+        logger.fatal("no command required")
     else:
-        notify_and_reboot(config)
+        notify_and_exec_command(config)
 
 
 if __name__ == '__main__':
