@@ -325,7 +325,7 @@ def exec_the_command(cfg):
 def notify_and_exec_command(cfg):
     # check command threshold
     exec_command_count = num_exec_command_24h(cfg)
-    logger.debug("number of command attemps in the last 24h: %s " % command ran)
+    logger.debug("number of command attemps in the last 24h: %s " % exec_command_count)
     if exec_command_count >= int(cfg.config['commands']['max_exec_cmd_per_day']):
         logger.fatal("command canceled. max command attempts allowed in 24h reached")
     # send notification and perform command
